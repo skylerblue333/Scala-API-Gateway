@@ -8,7 +8,7 @@ object GatewayRoutes:
   def parse(raw: String): Vector[GatewayRoute] =
     require(raw != null && raw.nonEmpty, "ROUTES is required")
     val routes = raw.split(',').toVector.map(_.trim).filter(_.nonEmpty).map { entry =>
-      val parts = entry.split('=', 2)
+      val parts = entry.split("=", 2)
       require(parts.length == 2, "each route must be prefix=upstream")
       val prefix = normalizePrefix(parts(0).trim)
       val upstream = URI.create(parts(1).trim)
