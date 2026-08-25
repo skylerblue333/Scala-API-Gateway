@@ -1,44 +1,44 @@
-<!-- PORTFOLIO PROJECT PROFILE: maintained by the repository owner -->
+# Sky Scala API Gateway
 
-## Project profile and code-audit snapshot
+**Status: engineering beta.** This repository now contains a real Scala 3 reverse-proxy gateway boundary rather than the previous Python anomaly-demo placeholder.
 
-**What this is:** **Scala-API-Gateway** is a public repository described as: “Enterprise-grade api gateway implementation in Scala. #SkyCoin4444 #AI #Blockchain #DevOps #Innovation” Its dominant language signals are **Python (4 files)**.
+## Implemented
 
-**Why it has value:** Its value is best understood through the implementation evidence currently present in the repository: **18 tracked files** were observed in the shallow audit, with the source structure and existing documentation providing the project’s specific context. This README does not treat a prototype, experiment, or archive as a production system without supporting evidence.
+- static `ROUTES` configuration using `prefix=http(s)://upstream`
+- validated HTTP/HTTPS upstream URIs
+- longest-prefix route matching
+- path suffix and query-string preservation
+- bounded request bodies (1 MiB)
+- upstream connect/request timeout
+- hop-by-hop header filtering
+- redirects disabled on the upstream client
+- `/healthz` and `/readyz`
+- Java 21 virtual-thread request execution
+- Scala/JUnit routing tests
+- Maven build, dependency audit, non-root Docker image, and CI health smoke test
 
-**Implementation evidence:** 2 test-related file(s) detected; 2 dependency or package manifest(s) detected; 2 build/CI/infrastructure signal(s) detected; and 3 documentation or governance file(s) detected. Test filenames observed include `tests/__init__.py`, `tests/test_main.py`. Dependency or package files include `package.json`, `requirements.txt`. Build, CI, or infrastructure signals include `Dockerfile`, `.github/workflows/ci.yml`.
+Example:
 
-**Current status:** The repository is tracked on the `main` branch. The existing source tree, configuration, tests, workflows, and documentation remain authoritative for supported behavior and maturity. A code audit is not a production-readiness certification, and the presence of a test or workflow file does not establish that all checks pass.
+```bash
+ROUTES='/api=http://api:8080,/identity=http://identity:8080' \
+  java -jar target/sky-scala-gateway-0.1.0.jar
+```
 
-**Relationship to the wider portfolio:** This repository is one focused component of the broader Skyler Blue Spillers portfolio across AI, software engineering, cloud and DevOps, cybersecurity, blockchain, finance, education, social systems, and creative work. It may provide a service boundary, implementation pattern, experiment, archive, or reusable idea for related repositories. Treat repositories as technical dependencies only where documented interfaces and verified project requirements support that relationship.
+## Boundaries
 
-**Quality and security note:** No obvious secret-like pattern was detected by the limited static scan; this is not a substitute for a security audit. No TODO/FIXME marker was detected in the scanned text files.
+This is not a complete production API-management platform. It does not provide authentication, authorization, distributed rate limiting, service discovery, retries/circuit breaking, TLS termination, WebSocket proxying, load balancing, tenant policy, persistent configuration, control-plane APIs, WAF behavior, distributed tracing propagation guarantees, or verified production deployment.
 
----
+The intended SKYCOIN4444 integration role is a small independently deployable routing primitive or reference boundary. Production traffic should only use it after the missing security, resilience, observability, deployment, and operational controls are implemented and verified.
 
-# Scala Api Gateway
+## Verification
 
-![GitHub stars](https://img.shields.io/github/stars/skylerblue333/Scala-API-Gateway?style=flat-square)
-![GitHub license](https://img.shields.io/github/license/skylerblue333/Scala-API-Gateway?style=flat-square)
+```bash
+mvn clean verify
+docker build -t sky-scala-gateway .
+```
 
-## 🌟 Overview
-**Scala-API-Gateway** is a professional-grade project within the **SkyCoin4444** ecosystem. It focuses on delivering high-value solutions in the domain of **Python**.
+CI is the merge gate; this README does not claim success until GitHub Actions verifies the exact branch head.
 
-## 🚀 Key Features
-- **Scalable Architecture**: Designed for enterprise-level growth and performance.
-- **Modern Standards**: Implements best practices for clean code and maintainability.
-- **Robust Integration**: Built to work seamlessly within modern cloud-native environments.
+## License
 
-## 🛠️ Technology Stack
-- **Primary Domain**: Python
-- **Ecosystem**: SkyCoin4444 Digital Platform
-
-## 📂 Structure
-The project is organized into a modular structure to ensure clarity and ease of development.
-
-## 👨‍💻 Author
-**Skyler Blue Spillers**
-*Professional Chess Player & Software Engineer*
-
----
-*Powered by SkyCoin4444*
+See `LICENSE`.

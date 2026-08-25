@@ -1,12 +1,40 @@
-name: CI
-on: [push, pull_request]
+name: scala-gateway-ci
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
 jobs:
-  test:
+  verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
         with:
-          python-version: '3.11'
-      - run: pip install -r requirements.txt
-      - run: pytest tests/ -v
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Compile and test Scala
+        run: mvn -B -ntp clean verify
+      - name: Vulnerability scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+      - name: Runtime dependency inventory
+        run: mvn -B -ntp dependency:tree -Dscope=runtime
+      - name: Build image
+        run: docker build -t sky-scala-gateway:ci .
+      - name: Verify non-root image
+        run: test "$(docker image inspect sky-scala-gateway:ci --format '{{.Config.User}}')" = "10001:10001"
+      - name: Smoke health
+        run: |
+          id=$(docker run -d -p 18080:8080 -e ROUTES='/api=http://127.0.0.1:9000' sky-scala-gateway:ci)
+          trap 'docker rm -f "$id"' EXIT
+          for i in {1..20}; do curl -fsS http://127.0.0.1:18080/healthz && exit 0; sleep 1; done
+          docker logs "$id"
+          exit 1
