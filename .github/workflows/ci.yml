@@ -16,11 +16,15 @@ jobs:
           cache: maven
       - name: Compile and test Scala
         run: mvn -B -ntp clean verify
-      - name: Review dependency changes
-        if: github.event_name == 'pull_request'
-        uses: actions/dependency-review-action@v4
+      - name: Vulnerability scan
+        uses: aquasecurity/trivy-action@0.33.1
         with:
-          fail-on-severity: high
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
       - name: Runtime dependency inventory
         run: mvn -B -ntp dependency:tree -Dscope=runtime
       - name: Build image
